@@ -492,4 +492,21 @@ Each item is a checkbox. Tick every box or mark it `n/a` with a one-line justifi
 
 ## Handoff notes
 
-_(Leave blank — fill in at the end of the implementation session per `implementation-steps.md` Handoff Protocol §3.)_
+### What shipped
+- `config/distributions.py` — all 13 samplers implemented. All probability weight arrays explicitly normalized (SCF weights like `[0.133, 0.166, …]` sum to 0.998, not 1.0 — numpy's `rng.choice` requires exact-sum-to-1). Private helper `_lognormal_decimal` added.
+- `registry/universe.py` — `UniverseBuilder` with all 11 `_assign_*`/`_generate_*` private methods. All 17 exit criteria pass (including byte-identical reproducibility, ±0.5% cohort tolerances, exclusive sub-typing, delinquency subset invariant, FICO range, address pool sharing).
+
+### Rate scaling decision
+SCF Part B ownership rates are **cross-institution household rates**. Applied naively to 3,000 customers they produce ~8,100 agreements (well above the 4,700–5,300 exit criterion). A `S = 0.40` per-bank penetration scale factor is applied to all optional product rates in `_assign_products`. This reflects the realistic fraction of SCF-reported product holdings that belong to any single institution. The scale constant is documented inline in the code.
+
+### CHURNED monthly_balances
+The spec description mentions "CHURNED trajectory reaches ≤ $100 before close_dttm" but the exit criterion Python check asserts `monthly_balances == []` for all non-DECLINING cohorts. These are consistent: the CHURNED near-zero balance trajectory is meant to be rendered by **Tier 7a AGREEMENT_FEATURE** rows (using `balance_amt`), NOT via the `monthly_balances` field. `monthly_balances` is populated only for DECLINING cohort.
+
+### `_assign_balance_trajectories` signature
+Method signature was extended to `(customers, agreements, rng, config)` vs. the `(agreements, rng)` sketch in mvp-tool-design.md §5, because cohort lookup requires the customers list. This is a private method — no downstream impact.
+
+### Deferred items
+None. All spec exit criteria satisfied.
+
+### Next session hint
+Step 5 (Output Writer) can start now — it depends only on Steps 1–2, which are stable. Step 6 (Tier 0a seed data) can also start in parallel — it depends only on Step 1 config. Both are independent of Step 4.
