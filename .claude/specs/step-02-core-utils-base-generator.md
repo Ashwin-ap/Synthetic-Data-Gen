@@ -217,4 +217,22 @@ Each item is a checkbox. Tick every box or mark it `n/a` with a one-line justifi
 
 ## Handoff notes
 
-_(To be filled in by the implementation session per `implementation-steps.md` Handoff Protocol.)_
+**Completed:** 2026-04-20
+
+### What shipped
+
+All 7 files specified under `## Produces` were created exactly as specced:
+- `utils/__init__.py`, `utils/id_factory.py`, `utils/date_utils.py`, `utils/di_columns.py`, `utils/luhn.py`
+- `generators/__init__.py`, `generators/base.py`
+
+All exit-criteria checks pass: four module self-tests print OK; BaseGenerator smoke checks pass; 1,000-card Luhn check passes; `git status --porcelain` shows only `utils/` and `generators/`.
+
+One implementation note: module-level `config.*` and `utils.*` imports in `date_utils.py`, `di_columns.py`, and `generators/base.py` use a `try/except ImportError` fallback that inserts the project root into `sys.path`. This allows the files to be run directly as scripts (`python utils/date_utils.py`) while still importing cleanly when used as package modules.
+
+### Deferrals
+
+None. Scope was utility primitives only — nothing deferred.
+
+### Next-session hint
+
+Step 3 (`specs/step-03-registry.md`) can start now. It imports `from utils.id_factory import IdFactory` and `from generators.base import BaseGenerator` — both stable. `IdFactory(config.settings.ID_RANGES)` is the constructor call pattern; `BaseGenerator.stamp_di()` and `stamp_valid()` are ready to subclass.
