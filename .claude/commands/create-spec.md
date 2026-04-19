@@ -103,9 +103,9 @@ git checkout -b <branch_name>
 
 Read these files before writing the spec, in this order:
 
-1. `PRD.md` — product requirements, scope, key decisions
-2. `mvp-tool-design.md` — architecture and tier design
-3. `implementation-steps.md` — the step you are specifying
+1. `PRD.md` — read the full document; note §4, §6, §7 as key sections
+2. `mvp-tool-design.md` — read the full document; note §1, §3, §7, §13, §15 as key sections
+3. `implementation-steps.md` — read the full document; the step entry gives exit criteria, but the Dependency Graph, Handoff Protocol, and Seed Data Convention sections apply to every step
 4. Only the reference files the step's "Reads from" section names.
    Do NOT read the full `references/` folder.
 5. All existing specs in `.claude/specs/` — to avoid duplicating
@@ -137,13 +137,21 @@ from them are consumed (specific modules, dataclasses, or
 CSV tables). If none: state "None (foundational step)".
 
 ## Reads from (source documents)
+Always list the primary planning documents as full reads first:
+- `PRD.md` — read in full
+- `mvp-tool-design.md` — read in full
+- `implementation-steps.md` — read in full (Dependency Graph, Handoff
+  Protocol, and Seed Data Convention apply to every step)
 
-List the exact reference files and sections this step draws
-from. Match the "Reads from" line in `implementation-steps.md`
-and expand with section numbers. Example:
+Then list key sections to pay close attention to (drawn from
+the "Reads from" line in `implementation-steps.md`):
+- `PRD.md` §X, §Y (the sections most relevant to this step)
+- `mvp-tool-design.md` §A, §B (the sections most relevant to this step)
+- `implementation-steps.md` Step N (the step being specified)
 
-- `mvp-tool-design.md` §3, §9 Tier 0
-- `references/02_data-mapping-reference.md` Step 3 items #2, #13
+Then list any additional reference files by section:
+- `references/07_mvp-schema-reference.md` §... (only if named in "Reads from")
+- `references/02_data-mapping-reference.md` §... (only if named in "Reads from")
 
 ## Produces
 
