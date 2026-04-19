@@ -299,4 +299,19 @@ Each item is a checkbox. Tick every box or mark it `n/a` with a one-line justifi
 
 ## Handoff notes
 
-<!-- Filled in at the end of the implementation session per implementation-steps.md Handoff Protocol §2–§3. -->
+### What shipped
+- `registry/__init__.py` — empty package marker
+- `registry/profiles.py` — `CustomerProfile`, `AgreementProfile`, `AddressRecord` dataclasses; all fields match spec exactly; `@dataclass` (mutable); all `*_id` fields typed as Python `int`; mutable defaults use `field(default_factory=...)`; `Optional[T]` syntax throughout; `if __name__ == '__main__':` self-test passes
+- `registry/context.py` — `GenerationContext` dataclass; `rng` and `ids` are required (no defaults), all other fields defaulted; constructable with `GenerationContext(rng=..., ids=...)` only; `if __name__ == '__main__':` self-test passes
+
+### Field-ordering note (non-obvious)
+`CustomerProfile` places `party_since: date` and `address_id: int` immediately **before** `product_set` (the first field with a `default_factory`). This deviates from the spec's logical grouping order (dates → address → products) but is required by Python's dataclass rule: non-default fields must precede default fields. The spec explicitly permits reordering: "Dataclass field order is a dev-ergonomics concern, not a DDL-order concern."
+
+### Import pattern for `context.py` (non-obvious)
+`registry/context.py` guards its project-level imports (`from utils.id_factory import IdFactory`, `from registry.profiles import ...`) inside a `try/except ImportError: pass` block. This matches the `id_factory.py` convention from Step 2 — project imports are not available when running `python registry/context.py` directly (project root is not on sys.path). The `__main__` block adds the root via `sys.path.insert` first, mirroring `utils/id_factory.py`. When imported normally (project root in sys.path), the try/except succeeds and names are in module globals so `get_type_hints()` resolves all 7 fields correctly.
+
+### No spec conflicts found
+All field names, types, and nullability match `mvp-tool-design.md` §4 and §6 exactly.
+
+### Next session hint
+Step 4 (UniverseBuilder) can start now — `registry/` is stable. Step 4 reads `registry/profiles.py` and `registry/context.py` directly and must populate every non-Optional field of `CustomerProfile` before `build()` returns.
