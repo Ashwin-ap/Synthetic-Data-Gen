@@ -194,6 +194,7 @@ Each item is a checkbox. Tick every box or mark it `n/a` with a one-line justifi
   assert c.CUSTOMER_PROFITABILITY_MODEL_PURPOSE_CD == 'customer profitability'
   assert c.RATE_FEATURE_SUBTYPE_CD == 'Rate Feature'
   assert c.ORIGINAL_LOAN_TERM_CLASSIFICATION_CD == 'Original Loan Term'
+  assert c.TERRITORY_ISO_STANDARD_CD == 'ISO 3166-2 Country Subdivision Standard'
   print('code_values OK')
   "
   ```
