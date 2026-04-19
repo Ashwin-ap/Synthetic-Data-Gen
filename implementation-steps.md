@@ -15,7 +15,8 @@ This file is the master work-breakdown for building the generator across many sh
 1. Read the relevant spec + the reference files it names (NOT the whole repo).
 2. Enter plan mode, confirm plan with user.
 3. Exit plan mode, implement, verify exit criteria.
-4. Commit, update any ref file if a spec conflict was discovered at the source (per PRD §10 priority), and leave a short handoff note for the next session.
+4. Update any ref file if a spec conflict was discovered at the source (per PRD §10 priority), and leave a short handoff note for the next session.
+5. **Do NOT run any git commands from the implementation session.** Branch creation is handled upstream by `/create-spec`. Post-implementation git operations (add, commit, push, merge PR, branch cleanup) are handled manually by the user after the session ends.
 
 Each step targets **S scope (1 session)** unless explicitly marked M. Anything that looked L has already been split in this file.
 
@@ -525,7 +526,7 @@ Tier 0 seed modules (`seed_data/*.py` — Steps 6, 7, 8) are **handwritten Pytho
 
 At the end of every session:
 
-1. **Commit the work.** One commit per step (e.g. `feat(step-6): tier 0a seed data — agreement/financial/feature`). Use a HEREDOC commit message that summarizes the step's deliverables in one line. Do NOT force-push or amend prior commits.
+1. **Do not run any git commands from the implementation session.** The branch was already created by `/create-spec` before the session started. At the end of the session, the user (not the session) runs the git workflow manually:
 
 2. **Record spec conflicts, if any.** If the step uncovered a contradiction between the spec and a priority-1 reference (`02_data-mapping-reference.md` or the master Excel), *do not silently work around it.* Update the upstream reference if the architect has been consulted, or add a `⚠️ Conflict` block to the spec with a pointer to where the decision needs to be made. Follow PRD §10 priority.
 

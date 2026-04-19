@@ -39,7 +39,6 @@ to clarify before proceeding.
 
 Read `implementation-steps.md` and find the matching step
 by `step_number`. Extract:
-
 - Step title (the heading after "Step N:")
 - Depends on
 - Produces
@@ -58,10 +57,8 @@ it is already complete, warn the user and stop.
 Run: `ls .claude/specs/step-<step_number>-*.md 2>/dev/null`
 
 If any file matches, stop immediately and tell the user:
-
 "Spec for step <step_number> already exists at <matched path>.
 Delete it or choose a different step before re-running."
-
 Do not proceed.
 
 ## Step 5 — Verify dependencies are committed (warning only)
@@ -82,30 +79,28 @@ skip this check.
 ## Step 6 — Check branch name is not taken
 
 Run `git branch` to list existing branches.
+
 If `branch_name` is already taken, append a number:
 `step/01-scaffolding-01`, `step/01-scaffolding-02` etc.
 
 ## Step 7 — Switch to main and pull latest
 
 Run:
-```
-git checkout main
-git pull origin main
-```
+`git checkout main`
+`git pull origin main`
+
 ## Step 8 — Create and switch to the step branch
 
 Run:
-```
-git checkout -b <branch_name>
-```
+`git checkout -b <branch_name>`
 
 ## Step 9 — Research the codebase
 
 Read these files before writing the spec, in this order:
 
-1. `PRD.md` — product requirements, scope, key decisions
-2. `mvp-tool-design.md` — architecture and tier design
-3. `implementation-steps.md` — the step you are specifying
+1. `PRD.md` — read the full document; note §4, §6, §7 as key sections
+2. `mvp-tool-design.md` — read the full document; note §1, §3, §7, §13, §15 as key sections
+3. `implementation-steps.md` — read the full document; the per-step entry gives exit criteria, but the Dependency Graph, Handoff Protocol, and Seed Data Convention sections apply to every step
 4. Only the reference files the step's "Reads from" section names.
    Do NOT read the full `references/` folder.
 5. All existing specs in `.claude/specs/` — to avoid duplicating
@@ -138,12 +133,21 @@ CSV tables). If none: state "None (foundational step)".
 
 ## Reads from (source documents)
 
-List the exact reference files and sections this step draws
-from. Match the "Reads from" line in `implementation-steps.md`
-and expand with section numbers. Example:
+Always structure this section in three parts:
 
-- `mvp-tool-design.md` §3, §9 Tier 0
-- `references/02_data-mapping-reference.md` Step 3 items #2, #13
+**Full document reads** (read the entire file):
+- `PRD.md` — read in full
+- `mvp-tool-design.md` — read in full
+- `implementation-steps.md` — read in full (Dependency Graph, Handoff Protocol, and Seed Data Convention apply to every step)
+
+**Key sections to pay close attention to** (drawn from the "Reads from" line in `implementation-steps.md`):
+- `PRD.md` §X, §Y (the sections most relevant to this step)
+- `mvp-tool-design.md` §A, §B (the sections most relevant to this step)
+- `implementation-steps.md` Step N (the step being specified)
+
+**Additional reference files** (only those named in the step's "Reads from" line):
+- `references/07_mvp-schema-reference.md` §... (if named)
+- `references/02_data-mapping-reference.md` Step 3 items #... (if named)
 
 ## Produces
 
@@ -222,8 +226,7 @@ by prose inspection.
          `GEOSPATIAL.csv`
 4. Mark checks that are not applicable to this step as "n/a"
    with a one-line reason — do not silently drop them.
-5. Each item is phrased as a checkbox. Include the exact command or snippet when the check is non-trivial (anything involving  row   counts, value assertions, FK resolution, file contents). Visual checks (e.g. folder tree exists) need only the checkbox — no command required.. Example:
-
+5. Each item is phrased as a checkbox. Include the exact command or snippet when the check is non-trivial (anything involving row counts, value assertions, FK resolution, file contents). Visual checks (e.g. folder tree exists) need only the checkbox — no command required. Example:
    - [ ] `python -c "import config.settings, config.code_values"` exits 0
    - [ ] `ls output/Core_DB/AGREEMENT.csv` exists and is non-empty
          (`[ -s output/Core_DB/AGREEMENT.csv ] && echo OK`)
@@ -234,7 +237,8 @@ by prose inspection.
          .groupby('Agreement_Id').size() == 1).all()"`)
 
 The implementation session MUST tick every box or mark it n/a
-with justification before running `git commit`.
+with justification before the session ends. The user will handle
+`git commit` manually afterward.
 
 ## Handoff notes
 
@@ -251,13 +255,13 @@ Save to: `.claude/specs/step-<step_number>-<step_slug>.md`
 ## Step 12 — Report to the user
 
 Print a short summary in this exact format:
-```
+"""
 Branch:    <branch_name>
 Spec file: .claude/specs/step-<step_number>-<step_slug>.md
 Title:     Step <step_number> — <step_title>
 Scope:     <S / M>
 Depends:   <comma-separated prior step numbers, or "none">
-```
+"""
 
 If any dependency warnings were printed in Step 5, repeat them
 here under a "Warnings:" heading so they are not buried.
@@ -267,6 +271,21 @@ Then tell the user:
 "Review the spec at `.claude/specs/step-<step_number>-<step_slug>.md`.
 Start a fresh Claude Code session for implementation, read the
 spec and only the reference files it names, then enter Plan Mode
-with Shift+Tab twice."
+with Shift+Tab twice.
+
+The implementation session will write code and fill in the
+Handoff notes in the spec — it will NOT run any git commands.
+All git operations after implementation (add, commit, push,
+merge, branch cleanup) are manual and handled by you after the
+session ends:
+
+    git add .
+    git commit -m \"feat(step-<step_number>): <step_title>\"
+    git push -u origin <branch_name>
+    # merge PR via GitHub UI
+    git checkout main
+    git pull origin main
+    git branch -D <branch_name>
+"
 
 Do not print the full spec in chat unless explicitly asked.
