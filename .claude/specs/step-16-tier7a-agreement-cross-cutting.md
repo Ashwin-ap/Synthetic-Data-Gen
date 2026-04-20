@@ -674,6 +674,19 @@ The implementation session must execute every check below and confirm it passes 
 - [ ] If `PARTY_INTERRACTION_EVENT` is written, filename preserves the double-R typo — **n/a**: not touched in this step (Step 22).
 - [ ] If `output/Core_DB/` exists, it does not contain `GEOSPATIAL.csv` — **n/a**: no CSV output; writer not invoked. Tier 7a does not touch the GEOSPATIAL skip list.
 
+## ⚠️ Conflict: Unit_Of_Measure_Cd 'PERCENT' not seeded — 'PCT' used instead
+
+**Discovery:** `seed_data/misc_types.py` (Step 8) seeds the percentage Unit_Of_Measure_Cd as `'PCT'`, not `'PERCENT'` as this spec assumed.
+**Resolution:** Fell back to `'PCT'` for `Agreement_Feature_UOM_Cd` on rate-feature rows (Conflict Handling Protocol option a). `'USD'` is confirmed present for monetary rows. No seed change required.
+**Impact:** Zero — `'PCT'` is semantically correct and present in `Core_DB.UNIT_OF_MEASURE`.
+**Literal used in generator:** `_RATE_UOM_CD = 'PCT'` (`generators/tier7a_agreement_crosscut.py`)
+
 ## Handoff notes
 
-<!-- Implementation session fills this in at end — see implementation-steps.md Handoff Protocol. -->
+**What shipped:** `generators/tier7a_agreement_crosscut.py` — `Tier7aAgreementCrosscut(BaseGenerator)` producing all 9 Core_DB tables as specified. All 22 DoD checks pass (module import, class contract, 9 keys, row counts, six-scheme coverage, Frozen literal, preferred currency, rate feature FK, profitability score, DECLINING trajectory, AGREEMENT_RATE verbatim, IIR/VIRF/TF FKs, Agreement_Id FKs, (Scheme,Code) FK, Feature_Id FKs, temporal sanity, BIGINT dtypes, DI stamping, no Valid/Del columns, writer compatibility, prerequisite guard, reproducibility, no faker/rng/import-time DFs).
+
+**Conflict resolved:** `'PERCENT'` UOM not seeded; used `'PCT'` (actual seeded value). Documented in spec conflict block above.
+
+**Deferred:** None.
+
+**Next session hint:** Step 17 (Tier 7b) can start now. It depends on `ctx.tables['Core_DB.AGREEMENT']` (Tier 2) and the AgreementProfile `is_*` sub-type flags. Tier 7a tables are NOT required by Tier 7b.
