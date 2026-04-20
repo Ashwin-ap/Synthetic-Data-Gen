@@ -27,6 +27,7 @@ _Generated from `resources/iDM_MDM_tables_DDLs.xlsx` + SQL DDL files. Total tabl
 | Core_DB | `FINANCIAL_EVENT` | 12 | Event_Id |
 | Core_DB | `CHANNEL_INSTANCE` | 10 | Channel_Instance_Id |
 | Core_DB | `COMPLAINT_EVENT` | 9 | Event_Id |
+| Core_DB | `PARTY_CONTACT_PREFERENCE` | 9 | Party_Id |
 | Core_DB | `AGREEMENT_METRIC` | 16 | Agreement_Id |
 | Core_DB | `PRODUCT` | 16 | Product_Id |
 | Core_DB | `AGREEMENT_STATUS` | 9 | Agreement_Id |
@@ -166,10 +167,10 @@ _Generated from `resources/iDM_MDM_tables_DDLs.xlsx` + SQL DDL files. Total tabl
 | Core_DB | `UNIT_OF_MEASURE_TYPE` | 10 | Unit_Of_Measure_Type_Cd, Unit_Of_Measure_Type_Cd |
 | Core_DB | `LOCATOR_RELATED` | 16 | Locator_Id, Locator_Id |
 | Core_DB | `ANALYTICAL_MODEL` | 19 | Model_Id |
-| Core_DB | `PARTY_DEMOGRAPHICS` | 11 | Party_Id |
+| Core_DB | `PARTY_DEMOGRAPHIC` | 11 | Party_Id |
 | Core_DB | `PARTY` | 10 | Party_Id |
 | Core_DB | `HOUSEHOLD` | 6 | Household_Party_Id |
-| Core_DB | `DEMOGRAPHICS_VALUE` | 9 | Demographic_Cd |
+| Core_DB | `DEMOGRAPHIC_VALUE` | 9 | Demographic_Cd |
 | Core_DB | `PARTY_LOCATOR` | 9 | Party_Id |
 | Core_DB | `ELECTRONIC_ADDRESS` | 8 | Electronic_Address_Id |
 | Core_DB | `ELECTRONIC_ADDRESS_SUBTYPE` | 5 | Electronic_Address_Subtype_Cd |
@@ -622,6 +623,23 @@ _Generated from `resources/iDM_MDM_tables_DDLs.xlsx` + SQL DDL files. Total tabl
 | `Event_Received_Dttm` | `TIMESTAMP(0)` |  | NOT NULL |
 | `Event_Txt` | `VARCHAR(32000)` |  | NULL |
 | `Event_Multimedia_Object_Ind` | `CHAR(1)` |  | NOT NULL |
+| `di_start_ts` | `TIMESTAMP(6)` |  | NULL |
+| `di_end_ts` | `TIMESTAMP(6)` |  | NULL |
+| `di_rec_deleted_Ind` | `CHAR(1)` |  | NULL |
+
+#### PARTY_CONTACT_PREFERENCE
+
+| Column Name | Type (from DDL) | PK | Nullable |
+|-------------|-----------------|----| ---------|
+| `Party_Id` | `INTEGER` | Y | NOT NULL |
+| `Channel_Type_Cd` | `SMALLINT` |  | NOT NULL |
+| `Contact_Preference_Type_Cd` | `SMALLINT` |  | NOT NULL |
+| `Party_Contact_Preference_Start_Dt` | `DATE` |  | NOT NULL |
+| `Party_Contact_Preference_End_Dt` | `DATE` |  | NOT NULL |
+| `Party_Contact_Preference_Priority_Num` | `SMALLINT` |  | NOT NULL |
+| `Protocol_Type_Cd` | `SMALLINT` |  | NOT NULL |
+| `Days_Cd` | `SMALLINT` |  | NOT NULL |
+| `Hours_Cd` | `SMALLINT` |  | NOT NULL |
 | `di_start_ts` | `TIMESTAMP(6)` |  | NULL |
 | `di_end_ts` | `TIMESTAMP(6)` |  | NULL |
 | `di_rec_deleted_Ind` | `CHAR(1)` |  | NULL |
@@ -2523,7 +2541,7 @@ _Generated from `resources/iDM_MDM_tables_DDLs.xlsx` + SQL DDL files. Total tabl
 | `di_end_ts` | `TIMESTAMP(6)` |  | NULL |
 | `di_rec_deleted_Ind` | `CHAR(1)` |  | NULL |
 
-#### PARTY_DEMOGRAPHICS
+#### PARTY_DEMOGRAPHIC
 
 | Column Name | Type (from DDL) | PK | Nullable |
 |-------------|-----------------|----| ---------|
@@ -2565,7 +2583,7 @@ _Generated from `resources/iDM_MDM_tables_DDLs.xlsx` + SQL DDL files. Total tabl
 | `di_end_ts` | `TIMESTAMP(6)` |  | NULL |
 | `di_rec_deleted_Ind` | `CHAR(1)` |  | NULL |
 
-#### DEMOGRAPHICS_VALUE
+#### DEMOGRAPHIC_VALUE
 
 | Column Name | Type (from DDL) | PK | Nullable |
 |-------------|-----------------|----| ---------|
@@ -8123,7 +8141,7 @@ CREATE  TABLE CORE_DB.ANALYTICAL_MODEL
 	 );
 ```
 
-#### PARTY_DEMOGRAPHICS
+#### PARTY_DEMOGRAPHIC
 
 ```sql
 CREATE  TABLE CORE_DB.PARTY_DEMOGRAPHIC
@@ -8216,7 +8234,7 @@ CREATE  TABLE CORE_DB.HOUSEHOLD
 	 );
 ```
 
-#### DEMOGRAPHICS_VALUE
+#### DEMOGRAPHIC_VALUE
 
 ```sql
 CREATE  TABLE CORE_DB.DEMOGRAPHIC_VALUE

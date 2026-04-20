@@ -314,4 +314,39 @@ Tick every box before the session ends, or mark as `n/a` with a one-line justifi
 
 ## Handoff notes
 
-*Leave empty — filled in at end of implementation session per `implementation-steps.md` "Handoff Protocol".*
+### What shipped
+
+- `main.py` rewritten as the four-phase orchestrator from `mvp-tool-design.md` §15. Imports the 18 tier classes, instantiates them in the order matching `output/validator.py:898–905`, runs `Validator().check_all(ctx)` as a hard gate (`sys.exit(1)` with `VALIDATION ERROR:`-prefixed lines on failure), then `Writer(OUTPUT_DIR).write_all(ctx.tables)`. Single `np.random.default_rng(SEED)` call. Final line `Done. Output in {OUTPUT_DIR}`.
+- Full smoke test passes end-to-end on `SEED=42`:
+  - File counts: `Core_DB=178`, `CDM_DB=16`, `PIM_DB=6` (within spec ranges).
+  - Validator returns `[]` (zero `VALIDATION ERROR:` lines).
+  - Row spot-checks: `AGREEMENT=5052` (within ±20% of `TARGET_AGREEMENTS`), `AGREEMENT_STATUS` current=30,312 (= 6×5052 exact), `PARTY_AGREEMENT` `customer`-role covers 5052/5052 agreements, `CDM_DB.PARTY=3001` (≥ INDIVIDUAL+ORG−1), `PIM_DB.PRODUCT_GROUP` CLV children=8.
+  - `output/Core_DB/GEOSPATIAL.csv` absent; `output/CDM_DB/PARTY_INTERRACTION_EVENT.csv` (double-R) present, single-R variant absent.
+  - BIGINT spot-check across all `*_Id` columns passes.
+  - Reproducibility: two consecutive runs produce byte-identical CSVs across all 200 files.
+  - Negative validator test (monkeypatched `check_all`) exits with code 1 and prints the `VALIDATION ERROR:` line.
+
+### Upstream patches (user-authorized — NOT silent)
+
+The smoke test surfaced two genuine upstream defects. Per the spec's "stop and escalate" rule I escalated each; the user explicitly authorized fixing both within this session. Files touched outside `main.py`:
+
+1. **`references/07_mvp-schema-reference.md`** — schema-reference parser (`output/writer.py:_load_ddl_column_order`) keys tables by markdown section header, but two `####` headers carried trailing-S typos that diverged from the actual `CREATE TABLE` statements (which are the authority per CLAUDE.md "DDL verification rule"):
+   - `#### PARTY_DEMOGRAPHICS` → `#### PARTY_DEMOGRAPHIC` (DDL line 8129 says `CORE_DB.PARTY_DEMOGRAPHIC`, singular). Fixed in 3 locations: index table line 169, parsed section line 2526, Raw-DDL header line 8126.
+   - `#### DEMOGRAPHICS_VALUE` → `#### DEMOGRAPHIC_VALUE` (DDL line 8222 says `CORE_DB.DEMOGRAPHIC_VALUE`, singular). Fixed in 3 locations: index 172, parsed 2568, Raw-DDL 8219.
+   - Added a new `#### PARTY_CONTACT_PREFERENCE` parsed section (and matching index row) — Tier 4c emits this customized table (per `mvp-tool-design.md` §9 Tier 4) but it had no DDL column-order entry in the markdown; without it the writer's `_reorder_to_ddl` raised `KeyError`.
+
+2. **`generators/base.py` + `config/settings.py`** — `BaseGenerator.stamp_di` used `format_ts(datetime.now())` as the default `start_ts`, baking wallclock time into `di_start_ts` for every Tier-0 (and other) generator that omitted the parameter. This made byte-identical reruns impossible, violating PRD §7.6 and the Step-25 reproducibility exit criterion. Fix:
+   - Added `GENERATION_TS = f'{SIM_DATE.isoformat()} 00:00:00.000000'` to `config/settings.py` (deterministic, semantically "row inserted at simulation date").
+   - `generators/base.py` now imports and defaults to `GENERATION_TS`. The `datetime` import is no longer needed and was removed. No behaviour change for callers passing an explicit `start_ts` — every existing tier override is unaffected.
+
+### Deviations from spec exit criteria
+
+- **"`git status` shows only `main.py` modified"** — *not met*. After the two upstream patches above, the modified set is `{main.py, config/settings.py, generators/base.py, references/07_mvp-schema-reference.md}`. The deviation is intentional and user-authorized; without these patches the smoke test cannot pass Phase 4 or the reproducibility check.
+
+### Next-session hint
+
+Step 25 is the terminal step. The project's MVP scope is now complete — full pipeline runs green from a single `python main.py`. Suggested follow-ups (not in MVP scope):
+
+- Audit other generators for any remaining wallclock-dependent code paths (the `BaseGenerator` default fix covers callers that omit `start_ts`, but a tier that explicitly computed its own `datetime.now()` would still drift — none observed in this run, but worth a one-pass `grep`).
+- Consider a `make smoke` / CI target wrapping the spec's verification block.
+- The schema-reference markdown's `### Raw DDL` section is parser-skipped (`output/writer.py:48`), so any future DDL changes need updating in *both* the parsed section and the Raw DDL block to stay in sync — currently the project relies on the parsed section only.
