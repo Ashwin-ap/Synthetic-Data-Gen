@@ -170,6 +170,29 @@ Five upstream gaps could be discovered during implementation. Do NOT silently im
 4. **`CARD` has no `Agreement_Id` column per DDL.** This is expected — the DDL declares `Access_Device_Id` as PK with no back-reference. If the session finds the `agreement_id → access_device_id` link is required by a later tier (Step 20 events touch `ACCESS_DEVICE_EVENT`), flag it here and propose an internal in-memory mapping (not a CSV column change).
 5. **`_PRODUCT_FLAGS` row for any product changes upstream.** Tier 7b depends on the exact flag mapping at `registry/universe.py:40`. If a future refactor alters the flags for an existing product (e.g., adds `is_credit=True` to PAYDAY), the row counts and DoD checks below will drift. The session's DoD verifies table membership partitions are consistent with the current flag definition — no change in Tier 7b code is needed, but the DoD row-count expectations will auto-adjust.
 
+## ⚠️ Conflict A — `Obligor_Borrowing_Purpose_Cd` literals
+
+**Trigger:** Conflict #1 in the protocol above.  
+**Finding:** `PURCHASE_INTENT_TYPE` IS seeded in `seed_data/financial_types.py` with codes `{PURCHASE, REFINANCE, CASH_OUT, HOME_EQUITY}`. However, this is a marketing purchase-intent domain, semantically distinct from the borrower's borrowing purpose. The DDL declares `Obligor_Borrowing_Purpose_Cd VARCHAR(50) NOT NULL` with no FK reference to `PURCHASE_INTENT_TYPE` or any other table.  
+**Resolution:** Using spec-suggested literals verbatim — GENERAL, HOME_IMPROVEMENT, VEHICLE, EDUCATION, HOME_PURCHASE. These are more semantically appropriate for borrower purpose and no FK constraint binds them to the seeded table.
+
+## ⚠️ Conflict B — `Credit_Agreement_Grace_Period_Cd` not seeded
+
+**Trigger:** Conflict #1 (part b) in the protocol above.  
+**Finding:** No seed table for grace-period codes found anywhere in the codebase. Column is `VARCHAR(50) NOT NULL` with no FK declared.  
+**Resolution:** Using spec literals: `'25_DAYS'` (CREDIT_CARD), `'30_DAYS'` (HELOC), `'NONE'` (VEHICLE_LOAN/STUDENT_LOAN/MORTGAGE).
+
+## ⚠️ Conflict C — `Card_Association_Type_Cd` not seeded
+
+**Trigger:** Conflict #2 in the protocol above (expected).  
+**Finding:** No association-type seed table exists in the codebase. Column is `VARCHAR(50) NOT NULL`.  
+**Resolution:** Using `{VISA, MASTERCARD, AMEX, DISCOVER}` as authoritative MVP literals, assigned by deterministic hash `access_device_id % 4`.
+
+## ⚠️ Conflict D — `Seniority_Level_Cd` not seeded
+
+**Finding:** No `SENIORITY_LEVEL_TYPE` lookup table found in codebase. Column is nullable `VARCHAR(50)`.  
+**Resolution:** Set to `None` for all CREDIT_AGREEMENT rows.
+
 ## Files to modify
 
 No files modified. `config/settings.py`, `config/code_values.py`, `config/distributions.py`, `utils/*`, `registry/*`, `seed_data/*`, all existing `generators/*.py`, `output/*`, `main.py`, `PRD.md`, `mvp-tool-design.md`, `implementation-steps.md`, `references/*`, `CLAUDE.md` are all **NOT touched**.
@@ -767,4 +790,20 @@ PY
 
 ## Handoff notes
 
-_To be filled in at end of implementation session._
+**What shipped:**
+- `generators/tier7b_subtypes.py` — `Tier7bSubtypes(BaseGenerator)` with single `generate(ctx)` method.
+- All 10 Core_DB tables emitted: FINANCIAL_AGREEMENT (5052 rows), DEPOSIT_AGREEMENT (3932), DEPOSIT_TERM_AGREEMENT (107), CREDIT_AGREEMENT (1102), LOAN_AGREEMENT (777), LOAN_TERM_AGREEMENT (777), LOAN_TRANSACTION_AGREEMENT (18), MORTGAGE_AGREEMENT (397), CREDIT_CARD_AGREEMENT (322), CARD (3070 = 322 CREDIT + 2748 DEBIT).
+- All 26 DoD checks pass (tables produced, row counts, inheritance-chain partitioning, FK coverage, NOT NULL, seeded-code FK, amount pass-throughs, Luhn validity, BIN consistency, BIGINT dtypes, DI stamping, DDL column order, writer compatibility, guard, reproducibility, no faker, no import-time DataFrames, clean git status).
+
+**Conflict resolutions documented in spec (Conflicts A–D above):**
+- `Obligor_Borrowing_Purpose_Cd` — uses GENERAL/HOME_IMPROVEMENT/VEHICLE/EDUCATION/HOME_PURCHASE (no FK to PURCHASE_INTENT_TYPE).
+- `Credit_Agreement_Grace_Period_Cd` — uses 25_DAYS/30_DAYS/NONE (no seed table).
+- `Card_Association_Type_Cd` — uses VISA/MASTERCARD/AMEX/DISCOVER (no seed table).
+- `Seniority_Level_Cd` — set to None (no seed table, column nullable).
+
+**Deferred:**
+- `CARD` has no `Agreement_Id` column per DDL (confirmed). The agreement↔card link required by Step 20 `ACCESS_DEVICE_EVENT` will need an in-memory mapping at that step; no schema change required here.
+- `Adjustable_Payment_Cap_Amt` / `Agreement_Currency_Adjustable_Cap_Amt` are populated only for ARM mortgages; all other mortgage types get None (MVP acceptable).
+
+**Next session hint:**
+Step 18 (Tier 8 Product Hierarchy) can start now — Tier 7b is stable and `ctx.tables` gains all 10 agreement sub-type keys. Step 18 reads PRODUCT and FEATURE from Tier 2 and agreement sub-type tables from Tier 7b.
