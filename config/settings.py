@@ -21,6 +21,11 @@ SIM_DATE      = date(2026, 3, 31)
 HIGH_DATE = '9999-12-31'
 HIGH_TS   = '9999-12-31 00:00:00.000000'
 
+# Deterministic default for di_start_ts when a tier doesn't pass one explicitly.
+# Bound to SIM_DATE so reruns are byte-identical (PRD §7.6); anchored at simulation
+# end-of-day so it is consistent with "row inserted at simulation date" semantics.
+GENERATION_TS = f'{SIM_DATE.isoformat()} 00:00:00.000000'
+
 # Both reserved IDs are 9_999_999 — shared party-ID space (PRD §7.2/§7.12).
 # BANK_PARTY_ID  → PARTY_RELATED 'customer of enterprise' rows (Tier 9)
 # SELF_EMP_ORG_ID → ORGANIZATION placeholder for self-employed individuals (Tier 3/4)

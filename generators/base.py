@@ -1,21 +1,18 @@
 from __future__ import annotations
 
 import sys
-from datetime import datetime
 from pathlib import Path
 from typing import Dict
 
 import pandas as pd
 
 try:
-    from config.settings import HIGH_DATE, HIGH_TS
-    from utils.date_utils import format_ts
+    from config.settings import GENERATION_TS, HIGH_DATE, HIGH_TS
     from utils.di_columns import stamp_di as _stamp_di
     from utils.di_columns import stamp_valid as _stamp_valid
 except ImportError:
     sys.path.insert(0, str(Path(__file__).parent.parent))
-    from config.settings import HIGH_DATE, HIGH_TS
-    from utils.date_utils import format_ts
+    from config.settings import GENERATION_TS, HIGH_DATE, HIGH_TS
     from utils.di_columns import stamp_di as _stamp_di
     from utils.di_columns import stamp_valid as _stamp_valid
 
@@ -37,11 +34,12 @@ class BaseGenerator:
     ) -> pd.DataFrame:
         """Stamp the 5 DI metadata columns onto *df*.
 
-        If *start_ts* is None, uses the current timestamp (generation run time).
+        If *start_ts* is None, uses GENERATION_TS — a deterministic SIM_DATE-derived
+        constant — so reruns produce byte-identical CSVs (PRD §7.6).
         Delegates to utils.di_columns.stamp_di.
         """
         if start_ts is None:
-            start_ts = format_ts(datetime.now())
+            start_ts = GENERATION_TS
         return _stamp_di(df, start_ts=start_ts, end_ts=end_ts, deleted=deleted)
 
     def stamp_valid(
