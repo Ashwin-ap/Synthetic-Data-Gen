@@ -6,7 +6,7 @@ from typing import TYPE_CHECKING, Dict, List
 
 import pandas as pd
 
-from config.settings import HISTORY_START
+from config.settings import BANK_PARTY_ID, HISTORY_START
 from config.code_values import (
     PROFITABILITY_MODEL_TYPE_CD,
     CUSTOMER_PROFITABILITY_MODEL_PURPOSE_CD,
@@ -695,6 +695,17 @@ class Tier2Core(BaseGenerator):
                 'Party_Type_Cd':               cp.party_type,
                 'Initial_Data_Source_Type_Cd': 'MDM',
             })
+        # Reserved bank/self-emp placeholder — same entity Tier3 injects into ORGANIZATION.
+        # Required so PARTY_RELATED.Related_Party_Id = BANK_PARTY_ID has a valid FK target.
+        party_rows.append({
+            'Party_Id':                    BANK_PARTY_ID,
+            'Party_Subtype_Cd':            'commercial',
+            'Party_Desc':                  'Bank Enterprise',
+            'Party_Start_Dttm':            datetime.combine(HISTORY_START, time(0, 0)),
+            'Party_End_Dttm':              None,
+            'Party_Type_Cd':               'ORGANIZATION',
+            'Initial_Data_Source_Type_Cd': 'MDM',
+        })
         df_party = pd.DataFrame(party_rows, columns=_COLS_PARTY)
         df_party = df_party.astype({'Party_Id': 'Int64'})
 
