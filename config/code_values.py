@@ -91,3 +91,28 @@ ACTIVITY_STATUS_REASON_CD = {
     2: 'NO_RESPONSE',
     3: 'CUSTOMER_SATISFIED',
 }
+
+# ---------------------------------------------------------------------------
+# Tier 14 CDM_DB SMALLINT enumerations
+# ---------------------------------------------------------------------------
+
+CDM_PARTY_SOURCE_CD          = {1: 'CIF'}
+CDM_PARTY_TYPE_CD            = {1: 'INDIVIDUAL', 2: 'ORGANIZATION'}
+CDM_PARTY_LIFECYCLE_PHASE_CD = {1: 'EXTERNAL', 2: 'PROSPECT',
+                                 3: 'ACTIVE_CUSTOMER', 4: 'FORMER_CUSTOMER'}
+HOUSEHOLD_ROLE_TO_CD         = {1: 'HEAD', 2: 'SPOUSE', 3: 'DEPENDENT'}
+RELATIONSHIP_TYPE_CD         = {1: 'FAMILY', 2: 'EMPLOYMENT', 3: 'SUBSIDIARY'}
+RELATIONSHIP_VALUE_CD        = {1: 'SPOUSE_OR_CURRENT_OR_MAJORITY',
+                                 2: 'PARENT_OF_DEPENDENT', 3: 'OTHER'}
+AGREEMENT_ROLE_TYPE_CD       = {1: 'PRIMARY_CUSTOMER', 2: 'CO_OWNER',
+                                 3: 'BENEFICIARY'}
+EVENT_PARTY_ROLE_TO_CD       = {'initiator': 1}   # only value emitted by tier10
+SEGMENT_TYPE_CD              = {1: 'CLV_DECILE'}
+CONTACT_TYPE_CD              = {1: 'EMAIL', 2: 'PHONE', 3: 'MOBILE'}
+ADDRESS_COUNTRY_CD           = {                  # SMALLINT → ISO3; order matches geography_ref.py
+    1: 'USA',  2: 'CAN',  3: 'GBR',  4: 'DEU',  5: 'FRA',
+    6: 'JPN',  7: 'AUS',  8: 'MEX',  9: 'BRA', 10: 'CHN',
+   11: 'IND', 12: 'ESP', 13: 'ITA', 14: 'NLD', 15: 'CHE',
+   16: 'SWE', 17: 'IRL', 18: 'SGP', 19: 'ZAF', 20: 'NOR',
+}
+INTERRACTION_EVENT_TYPE_CD   = {1: 'COMPLAINT', 2: 'INQUIRY', 3: 'COMPLIMENT'}

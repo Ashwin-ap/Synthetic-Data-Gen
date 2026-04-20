@@ -2995,7 +2995,8 @@ _SQL file table: `CDM_DB.CONTACT`_
 
 | Column Name | Type (from DDL) | PK | Nullable |
 |-------------|-----------------|----| ---------|
-| `Address_Id` | `BIGINT` | Y | NOT NULL |
+| `CDM_Address_Id` | `BIGINT` | Y | NOT NULL |
+| `Address_Id` | `BIGINT` |  | NOT NULL |
 | `Address_Type` | `VARCHAR(255)` |  | NULL |
 | `Address_Country_Cd` | `SMALLINT` |  | NOT NULL |
 | `Address_County` | `VARCHAR(255)` |  | NULL |
