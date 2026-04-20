@@ -577,4 +577,24 @@ if __name__ == '__main__':
 
 ## Handoff notes
 
-_(leave empty — filled in at the end of the implementation session per `implementation-steps.md` Handoff Protocol)_
+### What shipped
+`generators/tier4c_shared.py` — `Tier4cShared(BaseGenerator)` with a single `generate()` method returning all 10 Core_DB DataFrames. All Definition-of-Done checks passed at seed=42:
+- PARTY_LANGUAGE_USAGE: 6,000 rows (2 × 3,000 parties, both usage types per party) ✓
+- PARTY_STATUS: 3,150 rows (150 CHURNED × 2 rows, 19 BANKRUPT × 1, rest ACTIVE × 1) — BANKRUPT rate 0.79% ✓
+- PARTY_SCORE: 3,000 rows (1 per party, customer-profitability Model_Id) ✓
+- PARTY_CREDIT_REPORT_SCORE: 2,400 rows (individuals only, FICO 300–850) ✓
+- PARTY_IDENTIFICATION: 7,200 rows (3 × 2,400 individuals, SSN/DL/Passport, Primary_Ind CHAR(3)) ✓
+- PARTY_DEMOGRAPHIC + DEMOGRAPHIC_VALUE: 7,200 + 12 rows; all FKs resolve ✓
+- PARTY_SEGMENT: 3,000 rows (1 per party, CLV→Market_Segment_Id mapping) ✓
+- PARTY_SPECIALTY: 300 rows (every 10th party) ✓
+- PARTY_CONTACT_PREFERENCE: 6,000 rows (2 × 3,000; channel follows has_internet; End_Dt = HIGH_DATE sentinel) ✓
+- Reproducibility SHA-256: `112dfbd4ba2a...` ✓
+
+### Conflict found and resolved
+**`ANALYTICAL_MODEL` has no `Model_Run_Id` column.** The spec said to look up `Model_Run_Id` from the ANALYTICAL_MODEL row. The actual DDL (confirmed in `07_mvp-schema-reference.md`) has no such column. Resolution: `prof_model_run_id` is read from `MARKET_SEGMENT.Model_Run_Id` instead — Step 10 seeds `Model_Run_Id = 1` on all 10 MARKET_SEGMENT rows, making this the only model run in the system. `ms_df` is loaded before `prof_model_run_id` is computed. PARTY_SCORE.Model_Run_Id = 1 for all rows.
+
+### Deviation from spec
+`stamp_di()` in `utils/di_columns.py` operates on a **copy** and returns the modified DataFrame (not in-place). The spec and design doc describe it as modifying in-place. All 10 `stamp_di()` calls capture the return value (`xxx_df = self.stamp_di(xxx_df, ...)`).
+
+### Next session hint
+Step 15 (Tier 5 + Tier 6 — Location & Links) is next in the sequential chain. Steps 12/13/14 are all complete; Step 15 can start now.
