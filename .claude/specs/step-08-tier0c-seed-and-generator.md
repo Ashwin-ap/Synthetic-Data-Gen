@@ -543,4 +543,12 @@ The implementation session must execute every check below and confirm it passes 
 
 ## Handoff notes
 
-<!-- Filled in at the end of the implementation session per implementation-steps.md Handoff Protocol. -->
+**What shipped:** All 7 files produced as specced — 6 seed modules (`channel_types.py`, `campaign_types.py`, `address_types.py`, `currency.py`, `interest_rate_indices.py`, `misc_types.py`) and `generators/tier0_lookups.py`. `Tier0Lookups().generate(None)` returns 79 stamped Core_DB lookup tables (within the 70–85 target). All 21 Definition of Done checks pass.
+
+**Spec typo — table count says 22, actual is 21 (no missing table):** The spec overview states "22 new seed tables" but a cross-check of every table explicitly listed in the spec's own "Tables generated" section gives exactly 21 (4+6+6+1+1+3). The spec's own DoD row-count check comment also says `# 4+6+6+1+1+3 = 21`. Cross-referencing `mvp-tool-design.md §9 Tier 0` confirms every table in the Channel/Promotion, Address/Geo, and Other (Currency/UOM/TimePeriod) domains is present — nothing is missing. The number "22" in the spec overview is a counting typo.
+
+**DDL is correct for CURRENCY — no conflict:** The spec prose description mentioned `Currency_Symbol` and `Currency_Decimal_Digit_Num` columns, but the authoritative DDL in `07_mvp-schema-reference.md §367` shows `Currency_Rounding_Decimal_Cnt` (same semantic, different name) and no symbol column. Implemented exactly per DDL, which the spec itself mandates. The `07` DDL is correct; the spec prose was imprecise.
+
+**INTEREST_RATE_INDEX NOT NULL column:** `Interest_Rate_Index_Time_Period_Cd` is NOT NULL in the DDL. Populated with `'DAY'` for overnight indices (SOFR, PRIME, FEDFUNDS) and `'MONTH'` for term indices (LIBOR 3M, EURIBOR 3M). These FK-resolve to `TIME_PERIOD_TYPE` rows seeded in `misc_types.py`.
+
+**Next session hint:** Step 9 (Tier 1 Geography) is now unblocked. It reads `TERRITORY_TYPE`, `CITY_TYPE`, `CALENDAR_TYPE`, and `CURRENCY` from `ctx.tables` — all present after `Tier0Lookups.generate()` runs.
