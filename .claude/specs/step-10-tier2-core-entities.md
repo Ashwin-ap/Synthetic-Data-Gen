@@ -771,3 +771,20 @@ def mkctx():
 - [ ] If `output/Core_DB/` exists, it does not contain `GEOSPATIAL.csv` — **n/a**: no CSV output; writer not invoked.
 
 ## Handoff notes
+
+### Session notes — 2026-04-20
+
+**What shipped:** `generators/tier2_core.py` — all 8 Core_DB DataFrames generated and verified. All 25 DoD checks pass.
+
+**Row counts (seed=42):** PARTY=3,000, AGREEMENT=5,052, PRODUCT=12 distinct types, ANALYTICAL_MODEL=7, MARKET_SEGMENT=10, FEATURE=24, CHANNEL_INSTANCE=20, CAMPAIGN=10.
+
+**Key implementation decisions:**
+- `_ANALYTICAL_MODEL_TEMPLATES` rows 1 & 2 both carry `Model_Type_Cd='profitability'` AND `Model_Purpose_Cd='customer profitability'`, satisfying Layer 2 items #17 and #18. Row 3 (`CLV Decile Model`) is wired into `MARKET_SEGMENT.Model_Id`.
+- `_FEATURE_TEMPLATES` row 0 carries both `Feature_Subtype_Cd=RATE_FEATURE_SUBTYPE_CD` and `Feature_Classification_Cd=ORIGINAL_LOAN_TERM_CLASSIFICATION_CD` — both literal-match constraints satisfied on one row.
+- PRODUCT: invariant verified at runtime (`product_id` stable per `product_type`). `ctx.ids.next('product')` never called; counter confirmed unchanged (peek=1012 before and after).
+- `cust_by_id` dict built once in generate() and reused for both PARTY (Step H) and AGREEMENT (Step I) to derive `has_internet`-based columns.
+- All module-level data (templates, lookup dicts, `_CHANNEL_INST_START`) evaluated at import time without constructing any DataFrames — confirmed by the import-time DataFrame check.
+
+**No conflicts or deviations from spec.** No escalations needed.
+
+**Next session hint:** Step 11 (Tier 3 Party Subtypes — `generators/tier3_party_subtypes.py`) can start now. It reads `ctx.customers` (already built) and emits `INDIVIDUAL`, `ORGANIZATION`, `BUSINESS`. The reserved `SELF_EMP_ORG_ID = 9999999` row must be inserted into ORGANIZATION. Depends on `Core_DB.PARTY` (this step) being in `ctx.tables`.
