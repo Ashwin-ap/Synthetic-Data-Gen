@@ -243,4 +243,23 @@ The implementation session must execute every check below and confirm it passes 
 
 ## Handoff notes
 
-_Empty until the implementation session completes. Fill per `implementation-steps.md` Handoff Protocol §3 before closing the session._
+### What shipped
+
+- `output/__init__.py` — created (empty); missing from Step 1 scaffolding.
+- `output/writer.py` — full implementation: `_load_ddl_column_order` (lru_cached Markdown parser), `_reorder_to_ddl`, `_filename_for`, `class Writer` (`write_all` / `write_one`), `__main__` self-test (15 embedded tests + test 14 verified externally).
+
+All 16 DoD checks pass:
+- Parser yields 205 keys (≥200 threshold met; 1 below 206 summary count — within ≤6 tolerance).
+- AGREEMENT DDL order, PARTY_ADDRESS Core_DB fallback, PARTY_INTERRACTION_EVENT key all confirmed.
+- Reorderer handles 3-DI tables (Core_DB) and 5-DI + 3-Valid tables (CDM_DB) correctly.
+- NULL→empty, BIGINT→plain int, UTF-8, CRLF, filename typo, skip-list — all verified.
+- `python output/writer.py` exits 0 printing "output/writer.py OK".
+
+### Deferred items
+
+- **DoD test 14 (source inspection)** is not embedded in `__main__` due to inherent self-reference: the assertion `'Core_DB.GEOSPATIAL' not in src` would always find that literal in its own code. Verified instead by inspecting only the production section (`src.split('if __name__')[0]`). No inline skip key exists in production code — `SKIPPED_TABLES` is imported and used exclusively.
+- **No `.gitignore`** in the project root. `git status` shows `utils/__pycache__/di_columns.cpython-312.pyc` as a tracked modified file (side effect of running tests). A `.gitignore` covering `__pycache__/`, `*.pyc`, and `output/` should be added in a future step or retroactively in Step 1.
+
+### Next session hint
+
+Step 6 (Tier 0a seed data) can begin immediately. The writer is stable. Seed modules call `get_<domain>_tables() -> Dict[str, pd.DataFrame]`; Step 8 wires them through `Writer` after DI stamping. No writer changes expected until Step 25.
