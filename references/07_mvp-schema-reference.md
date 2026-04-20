@@ -1819,7 +1819,7 @@ _Generated from `resources/iDM_MDM_tables_DDLs.xlsx` + SQL DDL files. Total tabl
 | `di_end_ts` | `TIMESTAMP(6)` |  | NULL |
 | `di_rec_deleted_Ind` | `CHAR(1)` |  | NULL |
 
-#### ORGANIZATION_NAICS_*
+#### ORGANIZATION_NAICS
 
 | Column Name | Type (from DDL) | PK | Nullable |
 |-------------|-----------------|----| ---------|
@@ -1836,7 +1836,7 @@ _Generated from `resources/iDM_MDM_tables_DDLs.xlsx` + SQL DDL files. Total tabl
 | `di_end_ts` | `TIMESTAMP(6)` |  | NULL |
 | `di_rec_deleted_Ind` | `CHAR(1)` |  | NULL |
 
-#### ORGANIZATION_NACE_*
+#### ORGANIZATION_NACE
 
 | Column Name | Type (from DDL) | PK | Nullable |
 |-------------|-----------------|----| ---------|
@@ -1865,7 +1865,7 @@ _Generated from `resources/iDM_MDM_tables_DDLs.xlsx` + SQL DDL files. Total tabl
 | `di_end_ts` | `TIMESTAMP(6)` |  | NULL |
 | `di_rec_deleted_Ind` | `CHAR(1)` |  | NULL |
 
-#### ORGANIZATION_SIC_*
+#### ORGANIZATION_SIC
 
 | Column Name | Type (from DDL) | PK | Nullable |
 |-------------|-----------------|----| ---------|
@@ -1916,7 +1916,7 @@ _Generated from `resources/iDM_MDM_tables_DDLs.xlsx` + SQL DDL files. Total tabl
 | `di_end_ts` | `TIMESTAMP(6)` |  | NULL |
 | `di_rec_deleted_Ind` | `CHAR(1)` |  | NULL |
 
-#### NAICS_INDUSTRY_*
+#### NAICS_INDUSTRY
 
 | Column Name | Type (from DDL) | PK | Nullable |
 |-------------|-----------------|----| ---------|
@@ -6698,7 +6698,7 @@ CREATE  TABLE CORE_DB.BUSINESS_CATEGORY
 	 );
 ```
 
-#### ORGANIZATION_NAICS_*
+#### ORGANIZATION_NAICS
 
 ```sql
 CREATE  TABLE CORE_DB.ORGANIZATION_NAICS
@@ -6735,7 +6735,7 @@ CREATE  TABLE CORE_DB.ORGANIZATION_NAICS
 	 );
 ```
 
-#### ORGANIZATION_NACE_*
+#### ORGANIZATION_NACE
 
 ```sql
 CREATE  TABLE CORE_DB.ORGANIZATION_NACE
@@ -6799,7 +6799,7 @@ CREATE  TABLE CORE_DB.NACE_CLASS
 	 );
 ```
 
-#### ORGANIZATION_SIC_*
+#### ORGANIZATION_SIC
 
 ```sql
 CREATE  TABLE CORE_DB.ORGANIZATION_SIC
@@ -6913,7 +6913,7 @@ CREATE  TABLE CORE_DB.LEGAL_CLASSIFICATION
 	 );
 ```
 
-#### NAICS_INDUSTRY_*
+#### NAICS_INDUSTRY
 
 ```sql
 CREATE  TABLE CORE_DB.NAICS_INDUSTRY
