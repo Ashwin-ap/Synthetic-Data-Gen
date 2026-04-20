@@ -70,4 +70,8 @@ ID_RANGES = {
     'city':              1_400,
     'postal_code':       1_600,
     'geographical_area': 1_900,
+    # Tier 5 — Location (Step 15)
+    'street_address':  2_100_000,   # reserved; STREET_ADDRESS reuses Address_Id (1_000_000-range)
+    'parcel_address':  2_200_000,   # actively used — PARCEL_ADDRESS PKs
+    'post_office_box': 2_300_000,   # actively used — POST_OFFICE_BOX_ADDRESS PKs
 }

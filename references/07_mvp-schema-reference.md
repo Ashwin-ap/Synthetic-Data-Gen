@@ -143,7 +143,7 @@ _Generated from `resources/iDM_MDM_tables_DDLs.xlsx` + SQL DDL files. Total tabl
 | Core_DB | `PROMOTION_OFFER` | 12 | Promotion_Id |
 | Core_DB | `PROMOTION_OFFER_TYPE` | 5 | Promotion_Offer_Type_Cd |
 | Core_DB | `STREET_ADDRESS` | 15 | Street_Address_Id |
-| Core_DB | `STREET_ADDRESS_DETAIL` | 17 | Street_Address_Id |
+| Core_DB | `STREET_ADDRESS_DETAIL` | 19 | Street_Address_Id |
 | Core_DB | `DIRECTION_TYPE` | 5 | Direction_Type_Cd |
 | Core_DB | `STREET_SUFFIX_TYPE` | 5 | Street_Suffix_Cd |
 | Core_DB | `ISO_3166_COUNTRY_SUBDIVISION_STANDARD` | 7 | Territory_Id |
@@ -2161,6 +2161,8 @@ _Generated from `resources/iDM_MDM_tables_DDLs.xlsx` + SQL DDL files. Total tabl
 | `Floor_Val` | `VARCHAR(100)` |  | NULL |
 | `Workspace_Num` | `VARCHAR(50)` |  | NULL |
 | `Route_Num` | `VARCHAR(50)` |  | NULL |
+| `Mail_Pickup_Tm` | `TIME` |  | NOT NULL |
+| `Mail_Delivery_Tm` | `TIME` |  | NOT NULL |
 | `Mail_Stop_Num` | `VARCHAR(50)` |  | NOT NULL |
 | `Mail_Box_Num` | `VARCHAR(50)` |  | NOT NULL |
 | `di_start_ts` | `TIMESTAMP(6)` |  | NULL |
