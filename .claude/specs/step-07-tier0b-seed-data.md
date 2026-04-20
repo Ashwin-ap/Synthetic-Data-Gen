@@ -444,4 +444,32 @@ The implementation session must execute every check below and confirm it passes 
 
 ## Handoff notes
 
-*(Leave empty — filled by the implementation session per `implementation-steps.md` Handoff Protocol.)*
+**Session: 2026-04-20**
+
+### What shipped
+
+Both seed modules produced and all Definition-of-Done checks pass:
+
+- `seed_data/party_types.py` — 17 tables, 96 seed rows total. `get_party_type_tables()` exposed.
+- `seed_data/industry_codes.py` — 7 tables, 56 seed rows total. `get_industry_code_tables()` exposed.
+- 24 tables combined; all ≥ 3 rows; all DDL-column-order-aligned; all DI columns present as `None`.
+- Literal-match sets confirmed: `ETHNICITY_TYPE = {WHITE, BLACK, HISPANIC, ASIAN, OTHER}`; `OCCUPATION_TYPE = {EMP, SELF_EMP, RETIRED, NOT_WORKING}`; `BUSINESS_CATEGORY` includes `SELF_EMPLOYED`.
+- GICS 4-table hierarchy FK-consistent; all 11 sectors present.
+- `TAX_BRACKET_TYPE` uses `Decimal` for all 7 rates (12-decimal precision).
+- `LANGUAGE_TYPE.ISO_Language_Type_Cd` NOT NULL on all 15 rows; `EN`/`en` present.
+- `GENDER_PRONOUN` composite PK `(Gender_Pronoun_Cd, Gender_Pronoun_Type_Cd)` — 9 unique pairs.
+- `seed_data/__init__.py` left untouched (already existed, empty).
+
+### Known discrepancy — NAICS_INDUSTRY key alias (RESOLVED 2026-04-20)
+
+`references/07_mvp-schema-reference.md` had `#### NAICS_INDUSTRY_*` as the markdown section heading — a typo; the actual DDL is `CREATE TABLE CORE_DB.NAICS_INDUSTRY` (no suffix). Fixed by renaming both occurrences to `#### NAICS_INDUSTRY` in the reference file. The DDL parser (`output/writer._load_ddl_column_order()`) now returns `'Core_DB.NAICS_INDUSTRY'`, matching the seed module key exactly.
+
+All four affected headings fixed (2026-04-20): `NAICS_INDUSTRY`, `ORGANIZATION_NAICS`, `ORGANIZATION_NACE`, `ORGANIZATION_SIC` — each had two occurrences (column-summary table + DDL block). No `_*` headings remain in `07_mvp-schema-reference.md`.
+
+### NAICS 4-column-chain note
+
+The DDL for `NAICS_INDUSTRY` has 4 code columns (`NAICS_Industry_Cd`, `NAICS_Sector_Cd`, `NAICS_Subsector_Cd`, `NAICS_Industry_Group_Cd`). The spec parenthetical "5-column code chain" referred to the 5 NAICS hierarchy levels; the 6-digit National Industry level has no dedicated column in this parent table per the DDL. The bridge `ORGANIZATION_NAICS` carries `NAICS_National_Industry_Cd` separately. Seeded accordingly; architect awareness note left here for Q8 tracking.
+
+### Next session hint
+
+Step 8 can start now — `party_types` and `industry_codes` modules are stable and follow the Step 6 contract exactly. Step 8 imports all three seed module groups (6 + 7 + 8) and wires them into `Tier0Lookups.generate(ctx)` with DI stamping. See the NAICS key-alias note above before writing the Step 8 `ctx.tables` key assignment.
