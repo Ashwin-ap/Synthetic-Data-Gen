@@ -498,4 +498,10 @@ ctx.tables.update(tier3)
 
 ## Handoff notes
 
-_Filled in at the end of the implementation session per `implementation-steps.md` Handoff Protocol._
+**What shipped:** `generators/tier3_party_subtypes.py` — `Tier3PartySubtypes(BaseGenerator)` with a single `generate(ctx)` method producing three Core_DB DataFrames: INDIVIDUAL (2,400 rows), ORGANIZATION (600 real + 1 reserved placeholder = 601 rows), BUSINESS (600 rows, no placeholder). All 25 Definition-of-done checks pass against seed=42 pipeline run.
+
+**Deferred / none:** No spec conflicts found. No deferred items.
+
+**Spec note — `config=None` vs `config=cfg`:** The `UniverseBuilder.build()` call in the spec's Definition-of-done helper uses `config=None`, but the actual `universe.py` dereferences `config.ID_RANGES` at build time and raises `AttributeError` on `None`. All checks were run with `import config.settings as cfg; UniverseBuilder().build(config=cfg, rng=rng)`.
+
+**Next session hint:** Step 12 (Tier 4a Individual Attributes) can start now. It depends on `Core_DB.ORGANIZATION` (for `INDIVIDUAL_PAY_TIMING/BONUS_TIMING.Business_Party_Id → SELF_EMP_ORG_ID`) — that row is now present. Step 13 (Tier 4b Organization Attributes) and Step 14 (Tier 4c Shared Party Attributes) are equally unblocked; all three can run in parallel per the dependency graph.
