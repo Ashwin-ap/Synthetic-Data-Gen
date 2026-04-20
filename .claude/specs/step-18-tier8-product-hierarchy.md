@@ -540,4 +540,28 @@ The session builds a reusable test harness (either a fresh Python snippet per ch
 
 ## Handoff notes
 
-_To be filled in at the end of the implementation session per the Handoff Protocol in `implementation-steps.md`._
+### What shipped
+
+- `generators/tier8_product_hierarchy.py` — `Tier8ProductHierarchy(BaseGenerator)` with a single `generate(ctx)` method.
+- Produces all 5 Core_DB tables at full scale (5,052 AGREEMENT_PRODUCT rows, 24 PRODUCT_FEATURE rows, 24 PRODUCT_COST rows, 9 PRODUCT_GROUP rows, 12 PRODUCT_TO_GROUP rows) against a seed=42 full-chain run.
+- All DoD assertions pass: side-effect invariants, BIGINT dtypes, Decimal DECIMAL columns, DI column presence/order, column order, idempotency.
+
+### Conflict A (PRODUCT_TO_GROUP non-standard shape) — confirmed
+
+`references/07_mvp-schema-reference.md` §8436 declares `CORE_DB.PRODUCT_TO_GROUP` with `PIM_Id`/`Group_Id` column names (legacy misnomers) and a 5-col DI + Valid_* tail. Followed DDL verbatim; `PIM_Id` is populated with Core_DB.Product_Id values (internal bridge, not PIM_DB FKs). The Valid_* and 5-col DI columns are added inline (not via stamp_di()) to preserve DDL column ordering.
+
+### Conflict B (PRODUCT_GROUP_TYPE lookup absent) — confirmed
+
+No `CORE_DB.PRODUCT_GROUP_TYPE` lookup table exists in the MVP DDL. Literal string `'CLV'` used on every PRODUCT_GROUP row. Architect should confirm whether a lookup FK is intended or if VARCHAR(50) is intentionally unconstrained.
+
+### stamp_di() column mismatch — discovered
+
+`BaseGenerator.stamp_di()` (via `utils/di_columns.py`) stamps **5** DI columns (`di_data_src_cd, di_start_ts, di_proc_name, di_rec_deleted_Ind, di_end_ts`) in that order. The DDL for the 4 standard Core_DB tables in Tier 8 has **3** DI columns (`di_start_ts, di_end_ts, di_rec_deleted_Ind`). Using `stamp_di()` would produce wrong columns and wrong order. All DI was added inline for all 5 tables. Future tiers may have the same issue if their DDL also declares a 3-col DI tail.
+
+### Deferred items
+
+- No deferred items. The step spec's "Do NOT produce" list was fully respected: no CSVs written, no seed_data changes, no main.py wiring.
+
+### Next session hint
+
+Step 19 (Tier 9 Party-Agreement Links) can start now. It depends on ctx.agreements (satisfied) and Core_DB.AGREEMENT (satisfied by Tier 2). The Tier 8 tables (particularly AGREEMENT_PRODUCT) are not FK-referenced by Tier 9.
