@@ -355,7 +355,7 @@ ID_RANGES = {
     'campaign':   100,
     'promotion':  200,
     'model':      1,
-    'claim':      1_000_000,
+    'claim':      9_000_000,   # corrected from 1_000_000 (Step 9) — duplicated 'address'; no IDs had been minted
     'household':  8_000_000,
     'task':       3_000_000,
     'activity':   4_000_000,
@@ -365,6 +365,14 @@ ID_RANGES = {
     'channel':    50,
     'pim_id':     90_000_000,
     'group_id':   91_000_000,
+    # Tier 1 — Geography (added Step 9)
+    'country':             700,
+    'region':              800,
+    'territory':           900,
+    'county':            1_100,
+    'city':              1_400,
+    'postal_code':       1_600,
+    'geographical_area': 1_900,
 }
 ```
 
