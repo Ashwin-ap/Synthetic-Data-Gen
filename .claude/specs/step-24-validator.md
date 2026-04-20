@@ -293,4 +293,17 @@ Tick every box before the session ends, or mark as `n/a` with a one-line justifi
 
 ## Handoff notes
 
-_(Leave blank. Fill in at end of implementation session per `implementation-steps.md` Handoff Protocol.)_
+### What shipped
+- `output/validator.py` created — 22 constraint checks + `_check_fk_integrity` + 10-test `__main__` block
+- All DoD checks pass; `python output/validator.py` exits 0 with seed=42
+- `check_all(ctx)` returns `[]` on clean context (3,000 customers, 5,052 agreements, 200 tables)
+- FK manifest has 20 entries (≥15 required); all party-FK parents resolved via `CDM_DB.PARTY.CDM_Party_Id`
+
+### One non-spec discovery (not a conflict — logged here per Handoff Protocol §2)
+- `CDM_DB.PARTY` includes `BANK_PARTY_ID=9999999` (the bank entity row added by tier14) which has no `PARTY_STATUS` or `PARTY_SCORE` rows (tier4c only processes real customers). Checks #5 and #18 exclude `BANK_PARTY_ID` from the "all parties" set. This is consistent with the design intent; no upstream code was modified.
+
+### Deferrals
+None — all 22 constraints implemented and verified.
+
+### Next session hint
+Step 25 — wire `Validator().check_all(ctx)` into `main.py` Phase 3 and run the full end-to-end smoke test (`python main.py`). The import is `from output.validator import Validator`; call pattern matches `mvp-tool-design.md §15`.
