@@ -33,6 +33,10 @@ Python tool that generates ~3,000 synthetic banking customers and ~5,000 agreeme
 5. Update the spec's `## Handoff notes` with what shipped, deferrals, and the next-session hint
 6. Commit, close session, start fresh for the next step — do not carry prior-step context forward
 
+## DDL verification rule
+
+Before writing any column access, lookup, or fallback logic — verify the column exists in the actual DDL in `references/07_mvp-schema-reference.md`. Do not rely solely on spec descriptions or plan documents; specs can be wrong about column names. When a spec and the DDL disagree, the DDL wins (see Conflict resolution below).
+
 ## Conflict resolution
 
 When references disagree, trust this order (PRD §10):
