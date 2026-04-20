@@ -428,4 +428,18 @@ The implementation session must execute every check below and confirm it passes 
 
 ## Handoff notes
 
-_Leave this section empty. It is filled in at the end of the implementation session per `implementation-steps.md` Handoff Protocol._
+**Shipped (2026-04-20):**
+- `seed_data/__init__.py` — empty package marker
+- `seed_data/agreement_types.py` — 13 tables, exposes `get_agreement_type_tables()`
+- `seed_data/status_types.py` — 1 table (AGREEMENT_STATUS_TYPE, 19 rows across 6 schemes), exposes `get_status_type_tables()`
+- `seed_data/financial_types.py` — 17 tables, exposes `get_financial_type_tables()`
+- `seed_data/feature_types.py` — 3 tables, exposes `get_feature_type_tables()`
+- All 12 DoD checks passed: imports, API contract, 4 literal-match rows, scheme coverage, composite PK uniqueness, DDL column-order alignment (34/34 tables), row counts, no randomness, no import-time DataFrames, config literal wiring
+
+**Key implementation note — DI columns included as None:**
+All DataFrames include `di_start_ts`, `di_end_ts`, `di_rec_deleted_Ind` as the final three columns (all `None`). This is required because `output.writer._load_ddl_column_order()` returns column lists that include DI columns, and the DoD alignment check enforces strict equality. Step 8's `Tier0Lookups.generate(ctx)` will overwrite these None values with stamped DI values.
+
+**Deferred / follow-up:** None — all issues resolved in session.
+- `.gitignore` created (covers `__pycache__/`, `*.pyc`, generated output dirs, venvs, editor/OS artifacts). All 17 previously-tracked `.pyc` files removed from git index via `git rm --cached`. Clean `git status` — only `seed_data/` and `.gitignore` appear as new untracked files.
+
+**Next session hint:** Step 7 (party/industry seed data) and Step 8 (channel/campaign/misc seed + Tier0Lookups generator wiring) are both unblocked. Steps 6, 7, and 8 are independent per the Dependency Graph.
