@@ -439,8 +439,18 @@ The implementation session MUST tick every box or mark it n/a with a one-line ju
 
 ## Handoff notes
 
-_To be filled in at the end of the implementation session per `implementation-steps.md` Handoff Protocol §3. Include:_
-- _What was actually built vs. what this spec said (diffs from the spec, if any)._
-- _Any deferred items (with a TODO or follow-up issue)._
-- _One-line guidance for the next session (e.g., "Step 20 Tier 10 Events can start now — PARTY_AGREEMENT and PARTY_RELATED are stable")._
-- _Any ⚠️ Conflict blocks that surfaced (and whether they were resolved or escalated)._
+### What was built
+`generators/tier9_party_agreement.py` — `class Tier9PartyAgreement(BaseGenerator)` with `generate(ctx)` and three private helpers (`_build_party_agreement`, `_build_party_related`, `_build_party_claim`). All 22+ DoD assertions pass against the full pipeline (Tier0–Tier8 pre-run). Row counts with SEED=42: PARTY_AGREEMENT 6,154; PARTY_RELATED 3,000; PARTY_CLAIM 64.
+
+### Diffs from spec
+
+**DI stamping:** `self.stamp_di(df, start_ts=_TIER9_DI_START_TS)` is used as the spec says. It appends 5 columns; the only meaningful ones are `di_start_ts`, `di_end_ts`, and `di_rec_deleted_Ind` — `di_data_src_cd` and `di_proc_name` are always NULL and carry no information (PRD §7.3 / Q5c). The spec's description "yields the 3-col tail" was correct in spirit.
+
+### BANK_PARTY_ID gap — resolved in Tier2Core
+
+The spec states `Core_DB.PARTY` should have ≈3,001 rows (3,000 customers + 1 reserved bank/self-emp row). In practice `Tier2Core` only projected `CustomerProfile` party IDs (10,000,000+) into `Core_DB.PARTY`; the reserved `9_999_999` entity existed only in `Core_DB.ORGANIZATION` (injected by Tier3). This meant `PARTY_RELATED.Related_Party_Id = 9_999_999` had no valid FK target in `Core_DB.PARTY`.
+
+**Fixed in this step:** `generators/tier2_core.py` was patched to append one reserved PARTY row (`Party_Id = BANK_PARTY_ID`, `Party_Type_Cd = 'ORGANIZATION'`, `Party_Subtype_Cd = 'commercial'`, `Party_Desc = 'Bank Enterprise'`) after the customer loop. `Core_DB.PARTY` now has 3,001 rows, the guard check passes cleanly, and the FK chain is complete.
+
+### Next session guidance
+Step 20 Tier 10 Events can start now — `Core_DB.PARTY_AGREEMENT` and `Core_DB.PARTY_RELATED` are stable and in `ctx.tables`. The PARTY_CLAIM table is also stable. No changes to ctx profiles or prior tables were made in this step.
