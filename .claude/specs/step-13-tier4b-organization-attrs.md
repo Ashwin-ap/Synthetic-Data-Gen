@@ -642,4 +642,20 @@ org_ids = {cp.party_id for cp in org_cps}
 
 ## Handoff notes
 
-<!-- Filled in at the end of the implementation session per implementation-steps.md Handoff Protocol -->
+### What shipped
+- `generators/tier4b_organization.py` — `Tier4bOrganization(BaseGenerator)` with a single `generate(ctx)` method returning all 5 Core_DB DataFrames as a `Dict[str, pd.DataFrame]`.
+- All 22 Definition of Done checks pass at seed=42 (600 orgs, 2400 NAME rows, 600 rows each for NAICS/NACE/SIC/GICS).
+- Seed tables read via `ctx.tables.get()` (not `ctx.tables[key]`) to match tier4a convention and satisfy the no-ctx.tables-mutation grep check.
+
+### Implementation notes
+- `IdFactory.__init__` requires `id_ranges: Dict[str, int]` — use `IdFactory(cfg.ID_RANGES)` in test harnesses (the DoD snippets use bare `IdFactory()` which fails; corrected in verification runs).
+- The spec's `ctx.tables[` grep check catches reads, not just writes. Switched to `.get()` for the 4 seed-table reads to match tier4a pattern.
+- `NAICS_National_Industry_Cd` synthesised correctly: seed has no such column; value equals `NAICS_Industry_Cd` (5-digit code reused as national-industry code).
+- `SIC_Cd` override confirmed: `cp.sic_cd` not consumed; `pick(sorted(sic_df['SIC_Cd']), cp.party_id)` used instead.
+- All sector-matching assertions pass: Step 4 NAICS sectors `{52,62,44,51,72,81}` and GICS sectors are all present in seed, so matching path is always hot at seed=42.
+
+### Deferred items
+None — step is complete and self-contained.
+
+### Next session hint
+Step 14 (Tier 4c Shared Party Attributes) is the remaining parallel sibling and can start now. It depends on Step 11 (already done) and is independent of Steps 12 and 13.
