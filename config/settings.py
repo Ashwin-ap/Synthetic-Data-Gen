@@ -75,4 +75,6 @@ ID_RANGES = {
     'street_address':  2_100_000,   # reserved; STREET_ADDRESS reuses Address_Id (1_000_000-range)
     'parcel_address':  2_200_000,   # actively used — PARCEL_ADDRESS PKs
     'post_office_box': 2_300_000,   # actively used — POST_OFFICE_BOX_ADDRESS PKs
+    # Tier 14 — CDM_DB (Step 22)
+    'cdm_address':    20_000_000,   # CDM_Address_Id surrogate — unused band below event (50M)
 }
