@@ -2673,6 +2673,39 @@ _Generated from `resources/iDM_MDM_tables_DDLs.xlsx` + SQL DDL files. Total tabl
 | `di_end_ts` | `TIMESTAMP(6)` |  | NULL |
 | `di_rec_deleted_Ind` | `CHAR(1)` |  | NULL |
 
+#### PARTY_TASK_STATUS
+
+| Column Name | Type (from DDL) | PK | Nullable |
+|-------------|-----------------|----| ---------|
+| `Task_Status_Id` | `BIGINT` | Y | NOT NULL |
+| `Task_Id` | `BIGINT` |  | NULL |
+| `Task_Status_Start_Dttm` | `TIMESTAMP` |  | NOT NULL |
+| `Task_Status_End_Dttm` | `TIMESTAMP` |  | NOT NULL |
+| `Task_Status_Type_Cd` | `SMALLINT` |  | NOT NULL |
+| `Task_Status_Reason_Cd` | `SMALLINT` |  | NOT NULL |
+| `Task_Status_Txt` | `VARCHAR(32000)` |  | NULL |
+| `di_data_src_cd` | `VARCHAR(50)` |  | NULL |
+| `di_start_ts` | `TIMESTAMP(6)` |  | NULL |
+| `di_proc_name` | `VARCHAR(255)` |  | NULL |
+| `di_rec_deleted_Ind` | `CHAR(1)` |  | NULL |
+| `di_end_ts` | `TIMESTAMP(6)` |  | NULL |
+
+#### TASK_ACTIVITY_STATUS
+
+| Column Name | Type (from DDL) | PK | Nullable |
+|-------------|-----------------|----| ---------|
+| `Activity_Id` | `BIGINT` | Y | NOT NULL |
+| `Activity_Status_Start_Dttm` | `TIMESTAMP` |  | NOT NULL |
+| `Activity_Status_End_Dttm` | `TIMESTAMP` |  | NOT NULL |
+| `Activity_Status_Type_Cd` | `SMALLINT` |  | NOT NULL |
+| `Activity_Status_Reason_Cd` | `SMALLINT` |  | NOT NULL |
+| `Activity_Status_Txt` | `VARCHAR(32000)` |  | NULL |
+| `di_data_src_cd` | `VARCHAR(50)` |  | NULL |
+| `di_start_ts` | `TIMESTAMP(6)` |  | NULL |
+| `di_proc_name` | `VARCHAR(255)` |  | NULL |
+| `di_rec_deleted_Ind` | `CHAR(1)` |  | NULL |
+| `di_end_ts` | `TIMESTAMP(6)` |  | NULL |
+
 #### PARTY_ADDRESS
 
 | Column Name | Type (from DDL) | PK | Nullable |

@@ -315,4 +315,23 @@ Tick every box before the session ends, or mark as `n/a` with a one-line justifi
 
 ## Handoff notes
 
-_Leave empty; the implementation session fills this in per the Handoff Protocol._
+### What shipped
+
+- `generators/tier11_crm.py` — `Tier11CRM` class generating `CAMPAIGN_STATUS` (10 rows), `PROMOTION` (26 rows), `PROMOTION_OFFER` (74 rows). `Promotion_Offer_Id` is within-promotion sequence (not from IdFactory).
+- `generators/tier13_tasks.py` — `Tier13Tasks` class generating `PARTY_TASK` (145 rows), `PARTY_TASK_STATUS` (275 rows), `TASK_ACTIVITY` (267 rows), `TASK_ACTIVITY_STATUS` (267 rows). 1:1 complaint→task linkage, Party_Id from EVENT_PARTY initiator join, temporal chain contiguous with HIGH_TS final row.
+- `config/code_values.py` — appended 8 SMALLINT enum dicts (`TASK_ACTIVITY_TYPE_CD`, `TASK_SUBTYPE_CD`, `TASK_REASON_CD`, `TASK_STATUS_TYPE_CD`, `TASK_STATUS_REASON_CD`, `ACTIVITY_TYPE_CD`, `ACTIVITY_STATUS_TYPE_CD`, `ACTIVITY_STATUS_REASON_CD`).
+- `config/settings.py` — added `'task_status': 3_500_000` to `ID_RANGES`.
+- `references/07_mvp-schema-reference.md` — added DDL table entries for `PARTY_TASK_STATUS` and `TASK_ACTIVITY_STATUS` (both absent from the file; needed for writer's `_reorder_to_ddl` lookup). Source: `resources/Core_DB_customized.sql`.
+
+### Decisions
+
+- `stamp_di` applied uniformly to all 7 tables (5 DI cols). Spec claim that "writer drops extra 2 for 3-DI-col tables" is factually wrong — writer emits all DI cols present in DataFrame. No special-casing needed.
+- `Task_Status_Id` uses new `'task_status'` IdFactory sequence (3.5M range), not derived from `Task_Id`. This was the preferred approach per spec.
+
+### Deferrals
+
+None. All DoD items verified (21/21 checks pass).
+
+### Next-session hint
+
+Step 22 — Tier 14 CDM_DB tables. Check `main.py` comment block for `Tier14CDM()` import. Upstream dependency: needs `Core_DB.PARTY_INTERRACTION_EVENT` table name typo preserved (`PARTY_INTERRACTION_EVENT` — double-R). The constant `PARTY_INTERRACTION_EVENT_TABLE_NAME` in `config/settings.py` is the single source of truth for this.
