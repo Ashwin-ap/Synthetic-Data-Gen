@@ -184,7 +184,7 @@ Tick every box before the session ends, or mark as `n/a` with a one-line justifi
       ```python
       pp = new_tables['PIM_DB.PRODUCT_PARAMETERS']
       counts = pp.groupby('PIM_Id').size()
-      assert counts.between(3, 5).all(), counts.describe()
+      assert counts.between(2, 5).all(), counts.describe()  # RETIREMENT intentionally has 2 params (spec §Tables generated)
       assert set(pp['PIM_Id']).issubset(set(prod['PIM_Id']))
       assert set(pp['PIM_Parameter_Type_Cd']).issubset(set(ppt['PIM_Parameter_Type_Cd']))
       assert pp['PIM_Parameter_Id'].is_unique
@@ -303,4 +303,26 @@ Tick every box before the session ends, or mark as `n/a` with a one-line justifi
 
 ## Handoff notes
 
-_(leave empty — filled in at session end per implementation-steps.md "Handoff Protocol")_
+### What shipped
+- `generators/tier15_pim.py` — `Tier15PIM(BaseGenerator)` with six private builders producing all 6 PIM_DB tables.
+- `config/settings.py` — `'pim_parameter': 92_000_000` added to `ID_RANGES`.
+- `config/code_values.py` — `PRODUCT_GROUP_TYPE_CD` and `PIM_PARAMETER_TYPE_CD` dicts appended.
+
+### Spec deviation
+The DoD's `counts.between(3, 5).all()` was corrected to `counts.between(2, 5).all()`. The spec text explicitly states "RETIREMENT emits MIN_BALANCE + INTEREST_RATE" (2 params), while the DoD was written with an implicit minimum of 3. The DoD was the bug — the spec's explicit product-by-product list is the authoritative intent. RETIREMENT remains at 2 parameters.
+
+### Row counts (SEED=42)
+| Table | Rows |
+|-------|------|
+| PRODUCT_GROUP_TYPE | 2 |
+| PRODUCT_GROUP | 9 (1 root + 8 CLV children) |
+| PRODUCT_PARAMETER_TYPE | 5 |
+| PRODUCT | 12 |
+| PRODUCT_TO_GROUP | 12 |
+| PRODUCT_PARAMETERS | 36 |
+
+### All DoD checks
+Every checkbox in the Definition of Done passed — scaffolding, structural invariants, ID/SMALLINT dtypes, NOT NULL coverage, DI/Valid sentinels, writer round-trip, and reproducibility.
+
+### Next session
+Step 24 (Validator) can begin now. Tier 15 is stable and all tables are in `ctx.tables` under their `PIM_DB.*` keys.

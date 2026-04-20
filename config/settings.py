@@ -61,8 +61,9 @@ ID_RANGES = {
     'card':       7_000_000,
     'market_seg': 500,
     'channel':    50,
-    'pim_id':     90_000_000,
-    'group_id':   91_000_000,
+    'pim_id':          90_000_000,
+    'group_id':        91_000_000,
+    'pim_parameter':   92_000_000,   # Tier 15 — PIM_Parameter_Id sequence (Step 23)
     # Tier 1 — Geography (Step 9)
     'country':             700,
     'region':              800,

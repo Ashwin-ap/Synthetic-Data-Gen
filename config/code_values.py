@@ -116,3 +116,17 @@ ADDRESS_COUNTRY_CD           = {                  # SMALLINT → ISO3; order mat
    16: 'SWE', 17: 'IRL', 18: 'SGP', 19: 'ZAF', 20: 'NOR',
 }
 INTERRACTION_EVENT_TYPE_CD   = {1: 'COMPLAINT', 2: 'INQUIRY', 3: 'COMPLIMENT'}
+
+# ---------------------------------------------------------------------------
+# Tier 15 PIM_DB SMALLINT enumerations
+# ---------------------------------------------------------------------------
+
+PRODUCT_GROUP_TYPE_CD = {1: 'ROOT', 2: 'CLV_TYPE'}
+
+PIM_PARAMETER_TYPE_CD = {
+    1: 'MIN_BALANCE',
+    2: 'INTEREST_RATE',
+    3: 'FEE',
+    4: 'TERM_MONTHS',
+    5: 'CREDIT_LIMIT',
+}
